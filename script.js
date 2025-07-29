@@ -2,7 +2,7 @@ if (window.Telegram && window.Telegram.WebApp) {
     Telegram.WebApp.ready();
 }
 
-// BURAYA ipinfo.io'dan ALDIĞIN ANAHTARI YAPIŞTIR
+// SENİN TOKEN'INI BURAYA YERLEŞTİRDİM:
 const IPINFO_TOKEN = "6f33b6ebd15b03";
 
 function getFlagEmoji(countryCode) {
@@ -30,29 +30,33 @@ async function getIpInfo() {
         }
         const data = await response.json();
 
+        // Yükleme animasyonunu gizle, içeriği göster
         document.getElementById('loader').style.display = 'none';
         document.getElementById('content').style.visibility = 'visible';
         document.getElementById('content').classList.add('loaded');
 
         const flag = getFlagEmoji(data.country);
-
+        
+        // Üst kartı doldur
         document.getElementById('ip').textContent = data.ip || 'N/A';
-        document.getElementById('location').textContent = `${data.city || 'Unknown City'}, ${data.country || 'Unknown Country'}`;
         document.getElementById('country-flag').textContent = flag;
+        document.getElementById('country').textContent = data.country || 'N/A';
+        document.getElementById('region').textContent = data.region || 'N/A';
+        document.getElementById('city').textContent = data.city || 'N/A';
         
+        // İkinci ve üçüncü kartları doldur
         document.getElementById('isp').textContent = data.org || 'N/A';
-        const asn = data.asn ? `${data.asn.asn} ${data.asn.name}` : 'N/A';
-        document.getElementById('asn').textContent = asn;
-        
-        // Bu bilgiler yeni API'de yok, o yüzden N/A olarak işaretliyoruz
-        document.getElementById('hostname').textContent = 'N/A';
-        document.getElementById('dns').textContent = 'N/A';
+        document.getElementById('hostname').textContent = data.hostname || 'N/A';
+        const asnData = data.asn || {};
+        const asnString = `${asnData.asn || ''} ${asnData.name || ''}`.trim();
+        document.getElementById('asn').textContent = asnString || 'N/A';
+        document.getElementById('dns').textContent = 'N/A'; // Bu bilgi ipinfo'dan gelmiyor
         
         document.getElementById('os').textContent = getOS();
         
-        // Proxy/VPN bilgisi için "privacy" nesnesini kontrol ediyoruz
+        const privacy = data.privacy || {};
         const proxyStatus = document.getElementById('proxy');
-        if (data.privacy && data.privacy.vpn) {
+        if (privacy.vpn || privacy.proxy) {
             proxyStatus.textContent = 'Yes';
             proxyStatus.classList.add('yes');
         } else {
@@ -61,7 +65,7 @@ async function getIpInfo() {
         }
         
         const anonStatus = document.getElementById('anonymizer');
-         if (data.privacy && data.privacy.proxy) {
+         if (privacy.tor || privacy.relay) {
             anonStatus.textContent = 'Yes';
             anonStatus.classList.add('yes');
         } else {
