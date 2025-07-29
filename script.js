@@ -2,6 +2,9 @@ if (window.Telegram && window.Telegram.WebApp) {
     Telegram.WebApp.ready();
 }
 
+// BURAYA ipinfo.io'dan ALDIĞIN ANAHTARI YAPIŞTIR
+const IPINFO_TOKEN = "6f33b6ebd15b03";
+
 function getFlagEmoji(countryCode) {
     if (!countryCode || countryCode.length !== 2) return '🏳️';
     const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt());
@@ -21,43 +24,35 @@ function getOS() {
 
 async function getIpInfo() {
     try {
-        // Önce sadece IPv4 adresini alıyoruz
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        if (!ipResponse.ok) throw new Error('Failed to get IP address from ipify.');
-        const ipData = await ipResponse.json();
-        const ipv4 = ipData.ip;
+        const response = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        const data = await response.json();
 
-        if (!ipv4) throw new Error('Could not get IPv4 address.');
-
-        // Şimdi o IPv4 adresiyle detaylı bilgi sorguluyoruz
-        const detailsResponse = await fetch(`http://ip-api.com/json/${ipv4}?fields=status,message,country,countryCode,regionName,city,isp,as,hostname,proxy,query`);
-        if (!detailsResponse.ok) throw new Error('Failed to get IP details from ip-api.');
-        const data = await detailsResponse.json();
-
-        if (data.status !== 'success') throw new Error('API reported failure: ' + data.message);
-
-        // Yükleme animasyonunu gizle, içeriği göster
         document.getElementById('loader').style.display = 'none';
         document.getElementById('content').style.visibility = 'visible';
         document.getElementById('content').classList.add('loaded');
 
-        const flag = getFlagEmoji(data.countryCode);
-        
-        // Üst kartı doldur
-        document.getElementById('ip').textContent = data.query || 'N/A';
+        const flag = getFlagEmoji(data.country);
+
+        document.getElementById('ip').textContent = data.ip || 'N/A';
         document.getElementById('location').textContent = `${data.city || 'Unknown City'}, ${data.country || 'Unknown Country'}`;
         document.getElementById('country-flag').textContent = flag;
         
-        // İkinci ve üçüncü kartları doldur
-        document.getElementById('isp').textContent = data.isp || 'N/A';
-        document.getElementById('hostname').textContent = data.hostname || 'N/A';
-        document.getElementById('asn').textContent = data.as || 'N/A';
-        document.getElementById('dns').textContent = data.isp || 'N/A'; // En yakın tahmin
+        document.getElementById('isp').textContent = data.org || 'N/A';
+        const asn = data.asn ? `${data.asn.asn} ${data.asn.name}` : 'N/A';
+        document.getElementById('asn').textContent = asn;
+        
+        // Bu bilgiler yeni API'de yok, o yüzden N/A olarak işaretliyoruz
+        document.getElementById('hostname').textContent = 'N/A';
+        document.getElementById('dns').textContent = 'N/A';
         
         document.getElementById('os').textContent = getOS();
         
+        // Proxy/VPN bilgisi için "privacy" nesnesini kontrol ediyoruz
         const proxyStatus = document.getElementById('proxy');
-        if (data.proxy) {
+        if (data.privacy && data.privacy.vpn) {
             proxyStatus.textContent = 'Yes';
             proxyStatus.classList.add('yes');
         } else {
@@ -65,16 +60,20 @@ async function getIpInfo() {
             proxyStatus.classList.add('no');
         }
         
-        // Bu bilgiler ücretsiz API'lerle alınamaz, temsili olarak eklenmiştir.
         const anonStatus = document.getElementById('anonymizer');
-        anonStatus.textContent = 'N/A';
+         if (data.privacy && data.privacy.proxy) {
+            anonStatus.textContent = 'Yes';
+            anonStatus.classList.add('yes');
+        } else {
+            anonStatus.textContent = 'No';
+            anonStatus.classList.add('no');
+        }
 
         const blacklistStatus = document.getElementById('blacklist');
-        blacklistStatus.textContent = 'N/A';
-
+        blacklistStatus.textContent = 'N/A'; // Bu bilgi bu serviste yok
 
     } catch (error) {
-        document.getElementById('loader').innerHTML = '<h2>Could not fetch IP info.</h2><p style="text-align: center; color: var(--label-color);">Please disable your ad-blocker or try again.</p>';
+        document.getElementById('loader').innerHTML = `<h2>Could not fetch IP info.</h2><p style="text-align: center; color: var(--label-color);">${error.message}</p>`;
         console.error('Error fetching IP info:', error);
     }
 }
