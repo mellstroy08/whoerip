@@ -1,85 +1,152 @@
-if (window.Telegram && window.Telegram.WebApp) {
-    Telegram.WebApp.ready();
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+:root {
+    --bg-color: #0d0c1d;
+    --card-bg-color: rgba(26, 26, 38, 0.7);
+    --text-color: #e0e0e0;
+    --label-color: #8c8c9e;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --status-yes-color: #3ddc84;
+    --status-no-color: #ff4d4d;
 }
 
-// SENİN TOKEN'INI BURAYA YERLEŞTİRDİM:
-const IPINFO_TOKEN = "6f33b6ebd15b03";
-
-function getFlagEmoji(countryCode) {
-    if (!countryCode || countryCode.length !== 2) return '🏳️';
-    const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt());
-    return String.fromCodePoint(...codePoints);
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(-45deg, #1a0933, #0d3d2c, #230a4e, #1f5545);
+    background-size: 400% 400%;
+    animation: gradientBG 20s ease infinite;
+    color: var(--text-color);
+    margin: 0;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
-function getOS() {
-    const ua = navigator.userAgent;
-    if (/android/i.test(ua)) return "Android";
-    if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
-    if (/windows phone/i.test(ua)) return "Windows Phone";
-    if (/mac/i.test(ua)) return "macOS";
-    if (/windows/i.test(ua)) return "Windows";
-    if (/linux/i.test(ua)) return "Linux";
-    return "Unknown";
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-async function getIpInfo() {
-    try {
-        const response = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
-        if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
-        }
-        const data = await response.json();
+.main-container {
+    width: 100%;
+    max-width: 900px;
+}
 
-        // Yükleme animasyonunu gizle, içeriği göster
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('content').style.visibility = 'visible';
-        document.getElementById('content').classList.add('loaded');
+.card {
+    background-color: var(--card-bg-color);
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideUp 0.6s ease-out forwards;
+}
 
-        const flag = getFlagEmoji(data.country);
-        
-        // Üst kartı doldur
-        document.getElementById('ip').textContent = data.ip || 'N/A';
-        document.getElementById('country-flag').textContent = flag;
-        document.getElementById('country').textContent = data.country || 'N/A';
-        document.getElementById('region').textContent = data.region || 'N/A';
-        document.getElementById('city').textContent = data.city || 'N/A';
-        
-        // İkinci ve üçüncü kartları doldur
-        document.getElementById('isp').textContent = data.org || 'N/A';
-        document.getElementById('hostname').textContent = data.hostname || 'N/A';
-        const asnData = data.asn || {};
-        const asnString = `${asnData.asn || ''} ${asnData.name || ''}`.trim();
-        document.getElementById('asn').textContent = asnString || 'N/A';
-        document.getElementById('dns').textContent = 'N/A'; // Bu bilgi ipinfo'dan gelmiyor
-        
-        document.getElementById('os').textContent = getOS();
-        
-        const privacy = data.privacy || {};
-        const proxyStatus = document.getElementById('proxy');
-        if (privacy.vpn || privacy.proxy) {
-            proxyStatus.textContent = 'Yes';
-            proxyStatus.classList.add('yes');
-        } else {
-            proxyStatus.textContent = 'No';
-            proxyStatus.classList.add('no');
-        }
-        
-        const anonStatus = document.getElementById('anonymizer');
-         if (privacy.tor || privacy.relay) {
-            anonStatus.textContent = 'Yes';
-            anonStatus.classList.add('yes');
-        } else {
-            anonStatus.textContent = 'No';
-            anonStatus.classList.add('no');
-        }
+#content.loaded .card {
+    animation: slideUp 0.6s ease-out forwards;
+}
 
-        const blacklistStatus = document.getElementById('blacklist');
-        blacklistStatus.textContent = 'N/A'; // Bu bilgi bu serviste yok
-
-    } catch (error) {
-        document.getElementById('loader').innerHTML = `<h2>Could not fetch IP info.</h2><p style="text-align: center; color: var(--label-color);">${error.message}</p>`;
-        console.error('Error fetching IP info:', error);
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-getIpInfo();
+.header-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+}
+
+#country-flag {
+    font-size: 4rem;
+    line-height: 1;
+}
+
+.header-info {
+    flex-grow: 1;
+}
+
+.ip-label {
+    font-size: 0.9rem;
+    color: var(--label-color);
+}
+
+.header-info h1 {
+    margin: 0.2rem 0;
+    font-size: 2rem;
+    color: #fff;
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.location-grid {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 0.5rem;
+    font-size: 1rem;
+    text-align: left;
+    margin-left: auto;
+    min-width: 220px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.label {
+    font-weight: 500;
+    color: var(--label-color);
+    text-align: right;
+}
+
+.value {
+    font-weight: 500;
+    word-wrap: break-word;
+    /* UZUN YAZILARIN TAŞMASINI ENGELLEYEN DÜZELTME */
+    word-break: break-all;
+}
+
+.status.yes { color: var(--status-yes-color); font-weight: 700; }
+.status.no { color: var(--status-no-color); font-weight: 700; }
+
+.footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--label-color);
+    opacity: 0.7;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-left-color: var(--accent-color-green);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 700px) {
+    body { padding: 1rem; }
+    .header-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .location-grid { margin-left: 0; min-width: 0; width: 100%;}
+    .info-grid { grid-template-columns: 120px 1fr; }
+    .label { text-align: left; }
+}

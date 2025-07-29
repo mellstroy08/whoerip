@@ -1,152 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My IP Information</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <div id="loader" class="card">
+            <h2>Loading Your Information...</h2>
+            <div class="spinner"></div>
+        </div>
+        
+        <div id="content" style="visibility: hidden;">
+            <div class="card header-card">
+                <div id="country-flag"></div>
+                <div class="header-info">
+                    <span class="ip-label">Your IP Address (IPv4)</span>
+                    <h1 id="ip"></h1>
+                </div>
+                <div class="location-grid">
+                    <div class="label">Country</div><div id="country" class="value"></div>
+                    <div class="label">Region</div><div id="region" class="value"></div>
+                    <div class="label">City</div><div id="city" class="value"></div>
+                </div>
+            </div>
+            
+            <div class="card info-card">
+                <div class="info-grid">
+                    <div class="label">ISP</div><div id="isp" class="value"></div>
+                    <div class="label">Hostname</div><div id="hostname" class="value"></div>
+                    <div class="label">ASN</div><div id="asn" class="value"></div>
+                    <div class="label">DNS</div><div id="dns" class="value"></div>
+                </div>
+            </div>
 
-:root {
-    --bg-color: #0d0c1d;
-    --card-bg-color: rgba(26, 26, 38, 0.7);
-    --text-color: #e0e0e0;
-    --label-color: #8c8c9e;
-    --accent-color-purple: #8a3ffc;
-    --accent-color-green: #3ddc84;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --status-yes-color: #3ddc84;
-    --status-no-color: #ff4d4d;
-}
+            <div class="card info-card">
+                 <div class="info-grid">
+                    <div class="label">Operating System</div><div id="os" class="value"></div>
+                    <div class="label">Proxy / VPN</div><div id="proxy" class="value status"></div>
+                    <div class="label">Anonymizer</div><div id="anonymizer" class="value status"></div>
+                    <div class="label">Blacklist</div><div id="blacklist" class="value status"></div>
+                </div>
+            </div>
+        </div>
 
-body {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(-45deg, #1a0933, #0d3d2c, #230a4e, #1f5545);
-    background-size: 400% 400%;
-    animation: gradientBG 20s ease infinite;
-    color: var(--text-color);
-    margin: 0;
-    padding: 1.5rem;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-}
+        <div class="footer">
+            Created by MellStroy
+        </div>
+    </div>
 
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.main-container {
-    width: 100%;
-    max-width: 900px;
-}
-
-.card {
-    background-color: var(--card-bg-color);
-    padding: 1.5rem 2rem;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    backdrop-filter: blur(15px);
-    border: 1px solid var(--border-color);
-    margin-bottom: 1.5rem;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideUp 0.6s ease-out forwards;
-}
-
-#content.loaded .card {
-    animation: slideUp 0.6s ease-out forwards;
-}
-
-@keyframes slideUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.header-card {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 2rem;
-}
-
-#country-flag {
-    font-size: 4rem;
-    line-height: 1;
-}
-
-.header-info {
-    flex-grow: 1;
-}
-
-.ip-label {
-    font-size: 0.9rem;
-    color: var(--label-color);
-}
-
-.header-info h1 {
-    margin: 0.2rem 0;
-    font-size: 2rem;
-    color: #fff;
-    font-weight: 700;
-    word-break: break-all;
-}
-
-.location-grid {
-    display: grid;
-    grid-template-columns: 70px 1fr;
-    gap: 0.5rem;
-    font-size: 1rem;
-    text-align: left;
-    margin-left: auto;
-    min-width: 220px;
-}
-
-.info-grid {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    gap: 1rem;
-    align-items: center;
-}
-
-.label {
-    font-weight: 500;
-    color: var(--label-color);
-    text-align: right;
-}
-
-.value {
-    font-weight: 500;
-    word-wrap: break-word;
-}
-
-.status.yes { color: var(--status-yes-color); font-weight: 700; }
-.status.no { color: var(--status-no-color); font-weight: 700; }
-
-.footer {
-    text-align: center;
-    font-size: 0.9em;
-    color: var(--label-color);
-    opacity: 0.7;
-}
-
-.spinner {
-    border: 4px solid rgba(255, 255, 255, 0.2);
-    border-left-color: var(--accent-color-green);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-@media (max-width: 700px) {
-    body { padding: 1rem; }
-    .header-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .location-grid { margin-left: 0; min-width: 0; width: 100%;}
-    .info-grid { grid-template-columns: 120px 1fr; }
-    .label { text-align: left; }
-}
+    <script src="script.js"></script>
+</body>
+</html>
